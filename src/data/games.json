@@ -1,0 +1,35 @@
+[
+  {
+    "id": "slipstream",
+    "title": "Slipstream",
+    "url": "https://slipstream.khaw.cc",
+    "category": "Racing",
+    "tags": ["racing", "arcade"],
+    "description": "Draft, dive and slingshot past the pack.",
+    "image": "",
+    "order": 1,
+    "active": true
+  },
+  {
+    "id": "neon",
+    "title": "Neon",
+    "url": "https://neon.khaw.cc",
+    "category": "Arcade",
+    "tags": ["neon", "retro"],
+    "description": "A glowing arcade classic reimagined.",
+    "image": "",
+    "order": 2,
+    "active": true
+  },
+  {
+    "id": "velopool",
+    "title": "Velopool",
+    "url": "https://velopool.khaw.cc",
+    "category": "Sports",
+    "tags": ["pool", "physics"],
+    "description": "Precision pool with a physics-first feel.",
+    "image": "",
+    "order": 3,
+    "active": true
+  }
+]
