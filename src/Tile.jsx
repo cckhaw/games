@@ -12,7 +12,7 @@ export default function Tile({ game, as: Tag = 'div', ...props }) {
       <div className="tile-art" style={tileBackground(game)} />
       <div className="tile-info">
         {game.category && <span className="tile-cat">{game.category}</span>}
-        <h3>{game.title}</h3>
+        <h3 title={game.title}>{game.title}</h3>
         {game.description && <p>{game.description}</p>}
       </div>
     </Tag>

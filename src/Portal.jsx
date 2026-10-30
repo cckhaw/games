@@ -55,7 +55,7 @@ export default function Portal() {
         <div className="launcher" role="dialog" aria-label={playing.title}>
           <div className="topbar">
             <button className="back" onClick={() => setPlaying(null)}>‹ Arcade</button>
-            <strong>{playing.title}</strong>
+            <strong title={playing.title}>{playing.title}</strong>
             <a className="ext" href={playing.url} target="_blank" rel="noreferrer">Open ↗</a>
           </div>
           <iframe
