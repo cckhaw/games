@@ -2,6 +2,8 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 import { checkToken, fetchGames, getToken, saveGames, setToken, uploadTile } from './api.js'
 import { optimizeTile } from './optimize.js'
 import { tileBackground } from './Tile.jsx'
+import { CATEGORIES } from './categories.js'
+import TagPicker from './TagPicker.jsx'
 
 const blank = (order) => ({
   id: '', title: '', url: 'https://', category: '', tags: [], description: '', image: '', order, active: true,
@@ -34,9 +36,8 @@ function Login({ onDone }) {
   )
 }
 
-function Editor({ game, onSave, onCancel }) {
+function Editor({ game, allTags, onSave, onCancel }) {
   const [g, setG] = useState(game)
-  const [tags, setTags] = useState(game.tags.join(', '))
   const [busy, setBusy] = useState(false)
   const [err, setErr] = useState('')
   const [drag, setDrag] = useState(false)
@@ -65,7 +66,6 @@ function Editor({ game, onSave, onCancel }) {
       ...g,
       id: g.id || slug(g.title) || `game-${Date.now()}`,
       order: Number(g.order) || 0,
-      tags: tags.split(',').map((t) => t.trim()).filter(Boolean),
     })
   }
 
@@ -76,10 +76,19 @@ function Editor({ game, onSave, onCancel }) {
         <label>Title<input required value={g.title} onChange={set('title')} /></label>
         <label>URL<input required type="url" value={g.url} onChange={set('url')} placeholder="https://game.khaw.cc" /></label>
         <div className="row">
-          <label>Category<input value={g.category} onChange={set('category')} list="cats" /></label>
+          <label>Category
+            <select value={g.category} onChange={set('category')}>
+              <option value="">Uncategorized</option>
+              {/* keep a legacy category selectable so editing never silently drops it */}
+              {g.category && !CATEGORIES.includes(g.category) && <option value={g.category}>{g.category}</option>}
+              {CATEGORIES.map((c) => <option key={c} value={c}>{c}</option>)}
+            </select>
+          </label>
           <label>Order<input type="number" value={g.order} onChange={set('order')} /></label>
         </div>
-        <label>Tags <small>comma separated</small><input value={tags} onChange={(e) => setTags(e.target.value)} /></label>
+        <div className="field">Tags <small>pick existing or type a new one, then press Enter</small>
+          <TagPicker value={g.tags} options={allTags} onChange={(tags) => setG((p) => ({ ...p, tags }))} />
+        </div>
         <label>Description<textarea rows="3" maxLength="400" value={g.description} onChange={set('description')} /></label>
 
         <div
@@ -97,6 +106,14 @@ function Editor({ game, onSave, onCancel }) {
           <input ref={fileRef} type="file" accept="image/png,image/webp,image/jpeg" hidden onChange={(e) => pick(e.target.files[0])} />
         </div>
         <small>Resized to 960×720 and converted to WebP automatically.</small>
+        <label>Image path or URL <small>optional, e.g. /tiles/name.webp</small>
+          <input
+            value={g.image.startsWith('data:') ? '(uploaded image)' : g.image}
+            readOnly={g.image.startsWith('data:')}
+            onChange={set('image')}
+            placeholder="/tiles/name.webp or https://…"
+          />
+        </label>
 
         <label className="check"><input type="checkbox" checked={g.active} onChange={(e) => setG({ ...g, active: e.target.checked })} /> Active</label>
         {err && <p className="err">{err}</p>}
@@ -134,6 +151,7 @@ export default function Admin() {
     await commit(exists ? games.map((x) => (x.id === g.id ? g : x)) : [...games, g])
     setEditing(null)
   }
+  const allTags = [...new Map((games || []).flatMap((g) => g.tags).map((t) => [t.toLowerCase(), t])).values()].sort((x, y) => x.localeCompare(y))
   const toggle = (g) => commit(games.map((x) => (x.id === g.id ? { ...x, active: !x.active } : x)))
   const remove = (g) => confirm(`Delete “${g.title}”?`) && commit(games.filter((x) => x.id !== g.id))
 
@@ -149,7 +167,6 @@ export default function Admin() {
       </header>
       {msg && <p className="err">{msg}</p>}
       {!games && <p className="notice">Loading…</p>}
-      <datalist id="cats">{[...new Set((games || []).map((g) => g.category).filter(Boolean))].map((c) => <option key={c} value={c} />)}</datalist>
       <ul className="list">
         {(games || []).map((g) => (
           <li key={g.id} className="card item">
@@ -168,7 +185,7 @@ export default function Admin() {
           </li>
         ))}
       </ul>
-      {editing && <Editor game={editing} onSave={onSave} onCancel={() => setEditing(null)} />}
+      {editing && <Editor game={editing} allTags={allTags} onSave={onSave} onCancel={() => setEditing(null)} />}
     </main>
   )
 }

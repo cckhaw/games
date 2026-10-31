@@ -1,7 +1,7 @@
 const { chromium } = require('playwright'); const fs = require('fs')
 ;(async () => {
   const b = await chromium.launch(); const p = await b.newPage()
-  for (const n of ['slipstream', 'neon', 'velopool']) {
+  for (const n of ['slipstream', 'neon', 'velopool', 'dunk-n-drop']) {
     const svg = fs.readFileSync(`art/${n}.svg`, 'utf8')
     await p.setContent(`<canvas id=c width=960 height=720></canvas>`)
     const data = await p.evaluate(async (s) => {
