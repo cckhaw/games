@@ -1,0 +1,33 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="960" height="720" viewBox="0 0 960 720">
+<defs>
+<linearGradient id="sky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#3a2a7a"/><stop offset=".45" stop-color="#d9508f"/><stop offset=".8" stop-color="#ffb36b"/></linearGradient>
+<linearGradient id="court" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#1c8f86"/><stop offset="1" stop-color="#0f5f66"/></linearGradient>
+<radialGradient id="ball" cx=".35" cy=".3" r=".8"><stop offset="0" stop-color="#ffa24a"/><stop offset=".6" stop-color="#f06a14"/><stop offset="1" stop-color="#b8420a"/></radialGradient>
+<filter id="blur"><feGaussianBlur stdDeviation="14"/></filter>
+<filter id="sh" x="-30%" y="-30%" width="160%" height="160%"><feDropShadow dx="4" dy="10" stdDeviation="8" flood-opacity=".45"/></filter>
+</defs>
+<rect width="960" height="720" fill="url(#sky)"/>
+<circle cx="250" cy="330" r="120" fill="#ffe3a3" opacity=".9"/><circle cx="250" cy="330" r="190" fill="#ffd27a" opacity=".35" filter="url(#blur)"/>
+<!-- skyline -->
+<g fill="#2a1f5e"><rect x="0" y="360" width="90" height="200"/><rect x="100" y="300" width="70" height="260"/><rect x="180" y="380" width="110" height="180"/><rect x="560" y="340" width="80" height="220"/><rect x="650" y="270" width="90" height="290"/><rect x="750" y="350" width="70" height="210"/><rect x="830" y="300" width="130" height="260"/></g>
+<g fill="#ffe08a" opacity=".85"><rect x="115" y="322" width="10" height="14"/><rect x="140" y="350" width="10" height="14"/><rect x="115" y="380" width="10" height="14"/><rect x="668" y="296" width="10" height="14"/><rect x="700" y="330" width="10" height="14"/><rect x="668" y="366" width="10" height="14"/><rect x="850" y="326" width="10" height="14"/><rect x="890" y="362" width="10" height="14"/><rect x="850" y="400" width="10" height="14"/><rect x="578" y="372" width="10" height="14"/><rect x="20" y="400" width="10" height="14"/></g>
+<!-- court -->
+<polygon points="0,540 960,540 960,720 0,720" fill="url(#court)"/>
+<polygon points="300,540 700,540 860,720 140,720" fill="#f08a3c" opacity=".9"/>
+<g stroke="#fff" stroke-width="7" fill="none" stroke-linejoin="round" opacity=".92">
+<polygon points="300,540 700,540 860,720 140,720"/><path d="M215 630 Q480 560 785 630"/><line x1="0" y1="540" x2="960" y2="540"/></g>
+<!-- hoop -->
+<g filter="url(#sh)">
+<rect x="758" y="548" width="44" height="22" rx="4" fill="#222"/><rect x="772" y="230" width="16" height="324" fill="#2b2b3a"/><rect x="750" y="222" width="30" height="14" rx="5" fill="#2b2b3a"/>
+<rect x="560" y="150" width="200" height="140" rx="10" fill="#f6f6fb" stroke="#2b2b3a" stroke-width="10"/>
+<rect x="615" y="205" width="90" height="62" fill="none" stroke="#e5383b" stroke-width="9"/>
+<ellipse cx="660" cy="312" rx="62" ry="15" fill="none" stroke="#ff6a1f" stroke-width="12"/>
+<g stroke="#fff" stroke-width="4" fill="none" opacity=".95"><path d="M600 316 L626 400"/><path d="M630 322 L644 404"/><path d="M660 325 L660 406"/><path d="M690 322 L676 404"/><path d="M720 316 L694 400"/><path d="M612 352 Q660 372 708 352"/><path d="M624 384 Q660 400 696 384"/></g></g>
+<!-- shot arc -->
+<g fill="#fff" opacity=".9"><circle cx="150" cy="590" r="7"/><circle cx="200" cy="520" r="7"/><circle cx="255" cy="460" r="7"/><circle cx="315" cy="410" r="7"/><circle cx="380" cy="372" r="7"/><circle cx="448" cy="346" r="7"/><circle cx="516" cy="336" r="6"/></g>
+<!-- ball -->
+<g transform="translate(580 322)" filter="url(#sh)"><circle r="46" fill="url(#ball)" stroke="#2b1405" stroke-width="5"/>
+<g stroke="#2b1405" stroke-width="5" fill="none"><path d="M-46 0 H46"/><path d="M0 -46 V46"/><path d="M-33 -33 Q-10 0 -33 33"/><path d="M33 -33 Q10 0 33 33"/></g></g>
+<!-- ball shadow on court -->
+<ellipse cx="300" cy="700" rx="60" ry="10" fill="#000" opacity=".25"/>
+</svg>
