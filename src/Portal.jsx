@@ -27,8 +27,8 @@ export default function Portal() {
   return (
     <main className="shell">
       <header className="hero">
-        <h1>Arcade</h1>
-        <p>Pick a game. Press play.</p>
+        <h1>Khaw’s Arcade</h1>
+        <p>Snack-sized fun, ready when you are. Pick a game and jump in! 🎮</p>
       </header>
 
       {categories.length > 2 && (

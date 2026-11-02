@@ -23,8 +23,8 @@ button, input, textarea { font: inherit; color: inherit; }
 .shell { max-width: 1100px; margin: 0 auto; padding: 48px 20px 80px; }
 .shell.narrow { max-width: 420px; }
 .hero { text-align: center; margin-bottom: 32px; }
-.hero h1 { font-size: clamp(40px, 8vw, 64px); font-weight: 700; letter-spacing: -0.03em; }
-.hero p { color: var(--dim); font-size: 19px; margin-top: 6px; }
+.hero h1 { font-size: clamp(40px, 8vw, 64px); font-weight: 700; letter-spacing: -0.03em; text-wrap: balance; }
+.hero p { color: var(--dim); font-size: 19px; margin-top: 6px; text-wrap: balance; }
 .notice { text-align: center; color: var(--dim); margin: 24px 0; }
 
 .chips { display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; margin-bottom: 28px; }
