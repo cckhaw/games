@@ -8,6 +8,13 @@ import TagPicker from './TagPicker.jsx'
 const blank = (order) => ({
   id: '', title: '', url: 'https://', category: '', tags: [], description: '', image: '', order, active: true,
 })
+// Stable sort by `order`, then renumber 1..n so positions are always contiguous.
+// On a tie, `firstId` (the game just edited) wins, so typing an existing position puts it ahead of that game.
+const normalise = (list, firstId) =>
+  list
+    .map((g, i) => ({ g, i }))
+    .sort((a, b) => a.g.order - b.g.order || (a.g.id === firstId ? -1 : b.g.id === firstId ? 1 : 0) || a.i - b.i)
+    .map(({ g }, i) => ({ ...g, order: i + 1 }))
 const slug = (s) => s.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '')
 
 function Login({ onDone }) {
@@ -131,6 +138,9 @@ export default function Admin() {
   const [games, setGames] = useState(null)
   const [editing, setEditing] = useState(null)
   const [msg, setMsg] = useState('')
+  const [saving, setSaving] = useState(false)
+  const [drag, setDrag] = useState(null) // { from, over } while a row is being dragged
+  const [focusKey, setFocusKey] = useState(null)
 
   const logout = useCallback(() => { setToken(''); setAuthed(false); setGames(null) }, [])
   const fail = useCallback((e) => (e.status === 401 ? logout() : setMsg(e.message)), [logout])
@@ -139,21 +149,52 @@ export default function Admin() {
     if (authed) fetchGames({ admin: true }).then(setGames).catch(fail)
   }, [authed, fail])
 
+  // Optimistic: show the change at once, roll back if saving fails. Resolves true on success.
   const commit = async (next) => {
+    const prev = games
     setMsg('')
-    try { setGames(await saveGames(next)) } catch (e) { fail(e) }
+    setSaving(true)
+    setGames(next)
+    try {
+      setGames(await saveGames(next))
+      return true
+    } catch (e) {
+      setGames(prev)
+      fail(e)
+      return false
+    } finally {
+      setSaving(false)
+    }
   }
+
+  // Keep keyboard focus on the arrow that was just used, even though the row moved.
+  useEffect(() => {
+    if (!focusKey || saving) return // arrows are disabled while a save is in flight; wait for it
+    const [id, dir] = focusKey.split('|')
+    const row = document.querySelector(`[data-row="${CSS.escape(id)}"]`)
+    const btn = row?.querySelector(`[data-move="${dir}"]:not(:disabled)`) || row?.querySelector('[data-move]:not(:disabled)')
+    btn?.focus()
+    setFocusKey(null)
+  }, [focusKey, games, saving])
 
   if (!authed) return <Login onDone={() => setAuthed(true)} />
 
   const onSave = async (g) => {
     const exists = games.some((x) => x.id === g.id)
-    await commit(exists ? games.map((x) => (x.id === g.id ? g : x)) : [...games, g])
-    setEditing(null)
+    const next = normalise(exists ? games.map((x) => (x.id === g.id ? g : x)) : [...games, g], g.id)
+    if (await commit(next)) setEditing(null)
   }
   const allTags = [...new Map((games || []).flatMap((g) => g.tags).map((t) => [t.toLowerCase(), t])).values()].sort((x, y) => x.localeCompare(y))
   const toggle = (g) => commit(games.map((x) => (x.id === g.id ? { ...x, active: !x.active } : x)))
-  const remove = (g) => confirm(`Delete “${g.title}”?`) && commit(games.filter((x) => x.id !== g.id))
+  const remove = (g) => confirm(`Delete “${g.title}”?`) && commit(normalise(games.filter((x) => x.id !== g.id)))
+  const move = (from, to, via) => {
+    if (saving || from === to || to < 0 || to >= games.length) return
+    const next = [...games]
+    const [item] = next.splice(from, 1)
+    next.splice(to, 0, item)
+    if (via) setFocusKey(`${item.id}|${via}`)
+    commit(next.map((g, i) => ({ ...g, order: i + 1 })))
+  }
 
   return (
     <main className="shell">
@@ -167,14 +208,31 @@ export default function Admin() {
       </header>
       {msg && <p className="err">{msg}</p>}
       {!games && <p className="notice">Loading…</p>}
+      {games && games.length > 1 && (
+        <p className="hint">Games appear in this order on the arcade. Drag a row, or use the arrows — changes save automatically. Hidden games keep their place.</p>
+      )}
       <ul className="list">
-        {(games || []).map((g) => (
-          <li key={g.id} className="card item">
+        {(games || []).map((g, i) => (
+          <li
+            key={g.id}
+            data-row={g.id}
+            className={`card item${drag?.from === i ? ' dragging' : ''}${drag && drag.over === i && drag.from !== i ? ' dropzone' : ''}`}
+            draggable={!saving}
+            onDragStart={(e) => { setDrag({ from: i, over: i }); e.dataTransfer.effectAllowed = 'move'; e.dataTransfer.setData('text/plain', g.id) }}
+            onDragOver={(e) => { e.preventDefault(); setDrag((d) => (d && d.over !== i ? { ...d, over: i } : d)) }}
+            onDrop={(e) => { e.preventDefault(); if (drag) move(drag.from, i); setDrag(null) }}
+            onDragEnd={() => setDrag(null)}
+          >
+            <div className="reorder">
+              <button className="iconbtn" data-move="up" disabled={saving || i === 0} aria-label={`Move ${g.title} up`} onClick={() => move(i, i - 1, 'up')}>▲</button>
+              <span className="pos" aria-hidden="true">{i + 1}</span>
+              <button className="iconbtn" data-move="down" disabled={saving || i === games.length - 1} aria-label={`Move ${g.title} down`} onClick={() => move(i, i + 1, 'down')}>▼</button>
+            </div>
             <div className="thumb" style={tileBackground(g)} />
             <div className="meta">
               <strong>{g.title}</strong>
               <small>{g.url}</small>
-              <small>#{g.order} · {g.category || 'Uncategorized'}{g.tags.length ? ` · ${g.tags.join(', ')}` : ''}</small>
+              <small>{g.category || 'Uncategorized'}{g.tags.length ? ` · ${g.tags.join(', ')}` : ''}</small>
             </div>
             <button className={`switch${g.active ? ' on' : ''}`} role="switch" aria-checked={g.active} aria-label={`${g.title} active`} onClick={() => toggle(g)}>
               <span />

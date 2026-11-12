@@ -137,3 +137,14 @@ select option { background: #1c1c1e; color: var(--text); }
 .tagmenu { position: absolute; left: 0; right: 0; top: calc(100% + 6px); z-index: 5; list-style: none; margin: 0; padding: 6px; background: #2c2c2e; border: 1px solid var(--line); border-radius: 14px; box-shadow: 0 16px 40px rgba(0,0,0,.5); max-height: 220px; overflow: auto; }
 .tagmenu button { display: block; width: 100%; text-align: left; background: none; border: 0; border-radius: 8px; padding: 9px 12px; cursor: pointer; color: var(--text); }
 .tagmenu button:hover, .tagmenu button.on { background: rgba(255,255,255,.12); }
+
+/* reordering */
+.hint { color: var(--dim); font-size: 14px; margin: -8px 0 16px; }
+.item { cursor: grab; transition: opacity .3s var(--ease), outline-color .3s var(--ease); }
+.item.dragging { opacity: .45; }
+.item.dropzone { outline: 2px dashed var(--blue); outline-offset: 3px; }
+.reorder { display: flex; flex-direction: column; align-items: center; gap: 2px; flex: none; }
+.reorder .pos { font-size: 13px; font-weight: 600; color: var(--dim); min-width: 24px; text-align: center; }
+.iconbtn { width: 36px; height: 26px; border: 0; border-radius: 8px; background: rgba(255,255,255,.1); color: var(--text); font-size: 11px; cursor: pointer; transition: background .3s var(--ease); }
+.iconbtn:hover:not(:disabled) { background: rgba(255,255,255,.2); }
+.iconbtn:disabled { opacity: .3; cursor: default; }
